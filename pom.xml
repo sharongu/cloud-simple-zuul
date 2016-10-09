@@ -11,7 +11,7 @@
 	<groupId>spring.boot</groupId>
 	<artifactId>cloud-simple-gateway</artifactId>
 	<version>0.0.1</version>
-	<name>cloud-simple-gateway</name>
+	<name>zuul-gateway</name>
 
 	<repositories>
 		<!-- <repository> <snapshots> <enabled>true</enabled> </snapshots> <id>public</id> 
@@ -90,6 +90,10 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jolokia</groupId>
+			<artifactId>jolokia-core</artifactId>
 		</dependency>
 	</dependencies>
 

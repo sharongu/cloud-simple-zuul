@@ -1,6 +1,8 @@
 spring:
   application:
-    name: zuul-gateway
+    name: @project.name@
+
+info.version: @project.version@
     
 eureka:
   instance:
