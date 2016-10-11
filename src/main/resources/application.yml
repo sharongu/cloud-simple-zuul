@@ -1,7 +1,7 @@
 spring:
   application:
     name: @project.name@
-
+    
 info.version: @project.version@
     
 eureka:
@@ -19,6 +19,8 @@ eureka:
       
 # 使用http://ip/routes可以查看当前生效的所有路由
 zuul:
+  # 默认值是Cookie,Set-Cookie,Authorization，为了让zuul将sessionid传递给下游服务，因此将Cookie从敏感头里面去掉，每个route里面设置的sensitiveHeaders可以覆盖这个全局设置
+  sensitiveHeaders: Set-Cookie
   # 不设置这个的话，会自动代理所有注册到eureka server的services，对于某个service拦截的url路径就类似 /serviceId/**
   ignoredServices: '*'
   routes:
@@ -32,3 +34,7 @@ zuul:
     # user-service: /api/**
     # 多个路由的话可以依次设置，拦截顺序由yml配置文件中定义的顺序决定，但properties文件没法定义顺序，因此建议用yml文件
     # serviceId2: /path/**
+    ui:
+      path: /ui/**
+      serviceId: simple-ui
+      stripPrefix: false
