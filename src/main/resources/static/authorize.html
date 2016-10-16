@@ -1,0 +1,27 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+	<div class="container">
+		<h2>请确认</h2>
+
+		<p>
+			您是否要授权来自"${authorizationRequest.redirectUri}"的"${authorizationRequest.clientId}"访问您的受保护资源？
+			授权范围为： ${authorizationRequest.scope?join(", ")}.
+		</p>
+		<form id="confirmationForm" name="confirmationForm"
+			action="../oauth/authorize" method="post">
+			<input name="user_oauth_approval" value="true" type="hidden" />
+			<!-- <input type="hidden" id="csrf_token" name="${_csrf.parameterName}" value="${_csrf.token}"/> -->
+			<button class="btn btn-primary" type="submit">同意</button>
+		</form>
+		<form id="denyForm" name="confirmationForm"
+			action="../oauth/authorize" method="post">
+			<input name="user_oauth_approval" value="false" type="hidden" />
+			<!-- <input type="hidden" id="csrf_token" name="${_csrf.parameterName}" value="${_csrf.token}"/> -->
+			<button class="btn btn-primary" type="submit">拒绝</button>
+		</form>
+	</div>
+</body>
+</html>
