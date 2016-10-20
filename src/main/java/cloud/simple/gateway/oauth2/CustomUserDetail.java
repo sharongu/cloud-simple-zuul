@@ -10,9 +10,11 @@ public class CustomUserDetail implements UserDetails {
 
 	private static final long serialVersionUID = -8168650318880538551L;
 
-	private String id;
+	private String userId = null;
 
 	private String username;
+
+	private String clientId;
 
 	@Override
 	public String getUsername() {
@@ -23,12 +25,12 @@ public class CustomUserDetail implements UserDetails {
 		this.username = username;
 	}
 
-	public String getId() {
-		return id;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	@Override
@@ -60,5 +62,17 @@ public class CustomUserDetail implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
-	
+
+	public String getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
+	public boolean isClientOnly() {
+		return userId == null;
+	}
+
 }

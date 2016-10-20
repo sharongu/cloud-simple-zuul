@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.approval.Approval;
 import org.springframework.security.oauth2.provider.approval.Approval.ApprovalStatus;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
@@ -32,7 +33,7 @@ public class AuthController {
 
 	// @Autowired
 	private ApprovalStore approvalStore;
-	
+
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -64,14 +65,21 @@ public class AuthController {
 		return "There was a problem with the OAuth2 protocol";
 	}
 
-	@RequestMapping("/user")
-	public UserDetails user(Principal principal) throws Exception {
-//		CustomUserDetail u = new CustomUserDetail();
-//		u.setId(principal.getName());
-//		u.setUsername(principal.getName());
-//		return u;
-		CustomUserDetail user = (CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return userDetailsService.loadUserByUsername(principal.getName());
+	@RequestMapping("/oauth/me")
+	public UserDetails me() throws Exception {
+		OAuth2Authentication auth = (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetail ud;
+		if (auth.getPrincipal() instanceof CustomUserDetail) {
+			ud = (CustomUserDetail) auth.getPrincipal();
+			if (ud.getClientId() == null)
+				ud.setClientId(auth.getOAuth2Request().getClientId());
+		} else {
+			ud = new CustomUserDetail();
+			// 这边对于client-credentials的token，必须设置username属性，否则其它service里面会报 Principal must not be null
+			ud.setUsername(auth.getOAuth2Request().getClientId());
+			ud.setClientId(ud.getUsername());
+		}
+		return ud;
 	}
 
 }

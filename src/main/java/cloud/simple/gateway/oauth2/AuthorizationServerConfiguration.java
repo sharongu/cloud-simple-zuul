@@ -1,13 +1,19 @@
 package cloud.simple.gateway.oauth2;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -25,6 +31,10 @@ import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeSe
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 @Configuration
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
@@ -53,26 +63,27 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 		// @formatter:off
 		clients.inMemory().withClient("tonr")
 //		 			.resourceIds(SPARKLR_RESOURCE_ID)
-		 			.authorizedGrantTypes("authorization_code", "implicit", "client_credentials")
+		 			.authorizedGrantTypes("authorization_code", "implicit", "client_credentials","password")
 		 			.authorities("ROLE_CLIENT")
 		 			.scopes("read", "write")
 		 			.secret("secret")
 		 			.autoApprove(true)
 		 		.and()
-		 		.withClient("tonr-with-redirect")
+		 		.withClient("tonr2")
 		 			.resourceIds(SPARKLR_RESOURCE_ID)
-		 			.authorizedGrantTypes("authorization_code", "implicit")
+		 			.authorizedGrantTypes("authorization_code", "implicit", "client_credentials","password")
 		 			.authorities("ROLE_CLIENT")
 		 			.scopes("read", "write")
 		 			.secret("secret")
 //		 			.redirectUris(tonrRedirectUri)
 		 		.and()
-	 		    .withClient("my-client-with-registered-redirect")
- 			        .resourceIds(SPARKLR_RESOURCE_ID)
- 			        .authorizedGrantTypes("authorization_code", "client_credentials")
+	 		    .withClient("tonr3")
+// 			        .resourceIds(SPARKLR_RESOURCE_ID)
+ 			        .authorizedGrantTypes("authorization_code", "implicit", "client_credentials","password")
  			        .authorities("ROLE_CLIENT")
- 			        .scopes("read", "trust")
- 			        .redirectUris("http://anywhere?key=value")
+ 			        .scopes("read", "write")
+ 			        .secret("secret")
+// 			        .redirectUris("http://anywhere?key=value")
 	 		    .and()
  		        .withClient("my-trusted-client")
 			            .authorizedGrantTypes("password", "authorization_code", "refresh_token", "implicit")
@@ -111,7 +122,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 //			.realm("pipa/client")
 			.checkTokenAccess("isAuthenticated()") //因为/oauth/check_token默认是denyAll.必须手动设置oauthServer.checkTokenAccess("isAuthenticated()");
 //		 .tokenKeyAccess("isAnonymous()") // 应用于 /oauth/token_key
-//				.allowFormAuthenticationForClients();
+//				.allowFormAuthenticationForClients()
 		 ;
 	}
 
@@ -120,8 +131,32 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 //		endpoints.tokenStore(tokenStore).userApprovalHandler(userApprovalHandler)
 //				.authenticationManager(authenticationManager);
 		endpoints.authenticationManager(authenticationManager);
+		// 允许以GET，POST方式访问 /oauth/token
+		endpoints.allowedTokenEndpointRequestMethods(HttpMethod.POST,HttpMethod.GET);
 	}
-
+	
+	// 可以进行跨域拦截(CORS)，并且在返回的response header中写入允许跨域访问的信息
+	@Bean
+	public FilterRegistrationBean corsFilter() {
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    CorsConfiguration config = new CorsConfiguration();
+	    config.setAllowCredentials(true);
+	    config.addAllowedOrigin("*");
+	    config.addAllowedHeader("*");
+	    config.addAllowedMethod("OPTIONS");
+	    config.addAllowedMethod("HEAD");
+	    config.addAllowedMethod("GET");
+	    config.addAllowedMethod("PUT");
+	    config.addAllowedMethod("POST");
+	    config.addAllowedMethod("DELETE");
+	    config.addAllowedMethod("PATCH");
+	    source.registerCorsConfiguration("/**", config);
+	    final FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+	    // 这个必须设为最高优先级，否则被oauth拦截的请求会没法写入Access-Control-Allow-Origin等header信息
+	    bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+	    return bean;
+	}
+	
 //	@Bean
 //	public ApprovalStore approvalStore() throws Exception {
 //		TokenApprovalStore store = new TokenApprovalStore();

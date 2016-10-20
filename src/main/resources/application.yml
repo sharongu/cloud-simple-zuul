@@ -9,8 +9,7 @@ spring:
     
 info.version: @project.version@
 
-# oauth2 client和server如果跑在一台机器上，server的contextPath一定要设成和client不一样，否则可能由于cookie和jsessionid等导致认证失败
-server.contextPath: /uaa
+#server.contextPath: /uaa
 
 #security:
 #  user:
