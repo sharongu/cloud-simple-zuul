@@ -1,6 +1,15 @@
 spring:
   application:
     name: @project.name@
+    
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        serviceId: cloud-config-server
+      # 最终获取的配置文件为{name}-{profile}.yml
+      name: @project.name@
+      profile: ${config.profile:dev}
   
 #  redis:
 #    host: localhost
@@ -10,16 +19,6 @@ spring:
 info.version: @project.version@
 
 #server.contextPath: /uaa
-
-#security:
-#  user:
-#    password: password
-#  oauth2:
-#    client:
-#      clientId: tonr
-#      clientSecret: secret
-#      authorized-grant-types: authorization_code,implicit,client_credentials
-#      scope: read,write
 
 # 如果要显示debug级别日志，就要将debug设为true
 debug: true

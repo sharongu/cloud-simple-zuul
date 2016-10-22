@@ -2,10 +2,13 @@ package cloud.simple.gateway;
 
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+
+import cloud.simple.gateway.conf.DataSourceProperties;
 
 @SpringBootApplication
 @EnableEurekaClient
@@ -15,6 +18,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableResourceServer
 @EnableAuthorizationServer
 //@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 60, redisFlushMode = RedisFlushMode.IMMEDIATE)
+@EnableConfigurationProperties(DataSourceProperties.class)
 public class SampleGateway {
 
 	public static void main(String[] args) throws Exception {

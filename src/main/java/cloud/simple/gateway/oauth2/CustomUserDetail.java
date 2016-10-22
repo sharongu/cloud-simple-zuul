@@ -1,20 +1,26 @@
 package cloud.simple.gateway.oauth2;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class CustomUserDetail implements UserDetails {
 
 	private static final long serialVersionUID = -8168650318880538551L;
 
-	private String userId = null;
+	private Long userId = -1L;
 
 	private String username;
 
+	private String password;
+
 	private String clientId;
+
+	private boolean enabled;
+
+	private List<GrantedAuthority> authorities;
 
 	@Override
 	public String getUsername() {
@@ -25,22 +31,30 @@ public class CustomUserDetail implements UserDetails {
 		this.username = username;
 	}
 
-	public String getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_ADMIN");
+		return authorities;
+	}
+
+	public void setAuthorities(List<GrantedAuthority> authorities) {
+		this.authorities = authorities;
 	}
 
 	@Override
 	public String getPassword() {
-		return "password";
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	@Override
@@ -60,7 +74,11 @@ public class CustomUserDetail implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	public String getClientId() {
@@ -72,7 +90,7 @@ public class CustomUserDetail implements UserDetails {
 	}
 
 	public boolean isClientOnly() {
-		return userId == null;
+		return userId.longValue() == -1;
 	}
 
 }

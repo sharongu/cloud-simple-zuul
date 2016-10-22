@@ -2,9 +2,12 @@ package cloud.simple.gateway.oauth2;
 
 import java.util.Arrays;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -18,6 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -26,18 +30,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
-//Set higher precedence here to handle the authorization and login endpoints here. Otherwise, the resource server configuration 
-//will kick in for the /login endpoint and you will get “Full Authentication Required” response
-@Order(Ordered.HIGHEST_PRECEDENCE+10)
-//@Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
-//@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+// Set higher precedence here to handle the authorization and login endpoints here. Otherwise, the resource server configuration
+// will kick in for the /login endpoint and you will get “Full Authentication Required” response
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
+// @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
+// @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private UserDetailsService userDetailsService;
-	
-	@Override
-	public void configure(AuthenticationManagerBuilder auth) throws Exception {
+//	@Autowired
+//	private AuthenticationProviderConfig config;
+
+//	@Override
+//	public void configure(AuthenticationManagerBuilder auth) throws Exception {
 		// @formatter:off
 //		auth.inMemoryAuthentication()
 //			.withUser("user").password("password").roles("USER")
@@ -46,29 +50,29 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //				.and()
 //			.withUser("user").password("password").roles("USER")
 //			;
-		auth.userDetailsService(userDetailsService);
+//		auth.userDetailsService(config.customUserDetailsService()).passwordEncoder(new BCryptPasswordEncoder());
 		// @formatter:on
-	}
-	
-//	@Override
-//    public void configure(WebSecurity web) throws Exception {
-//        web.ignoring().antMatchers("/images/**", "/info");
-//    }
-	
-//	@Autowired
-//	AuthenticationManager  authManager;
-	
+//	}
+
+	// @Override
+	// public void configure(WebSecurity web) throws Exception {
+	// web.ignoring().antMatchers("/images/**", "/info");
+	// }
+
+	// @Autowired
+	// AuthenticationManager authManager;
+
 	private UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter() {
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-//        filter.setAuthenticationManager(authManager);
-        AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler("/login?login_error=true");
-        filter.setAuthenticationFailureHandler(failureHandler);
-        return filter;
-   }
-	
+		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+		// filter.setAuthenticationManager(authManager);
+		AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler("/login?login_error=true");
+		filter.setAuthenticationFailureHandler(failureHandler);
+		return filter;
+	}
+
 	@Override
-    protected void configure(HttpSecurity http) throws Exception {
-        // @formatter:off
+	protected void configure(HttpSecurity http) throws Exception {
+		// @formatter:off
 		// requestMatchers以外的uri访问权限就由ResourceServerConfigurerAdapter来确定了，这边一定要加入"/oauth/authorize"，否则认证时不会弹出登录form框，只会弹出浏览器对话框
 		http.requestMatchers().antMatchers("/login","/logout","/oauth/authorize");
         http.formLogin(); // 显示登录的form表单
@@ -105,6 +109,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //                .loginPage("/login.html")   // oauth2显示的登录界面
                ;
         // @formatter:on
-    }
+	}
 
 }
