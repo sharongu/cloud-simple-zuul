@@ -106,7 +106,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 //	                .authorities("ROLE_CLIENT")
 //	                .scopes("read", "write", "trust")
 //	                .autoApprove(true)
-				.withClientDetails(config.jdbcClientDetailsService())
+				.withClientDetails(config.clientDetailsService())
 				;
 		// @formatter:on
 	}

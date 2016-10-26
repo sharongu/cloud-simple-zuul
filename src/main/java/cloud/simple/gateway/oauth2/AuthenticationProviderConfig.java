@@ -1,15 +1,11 @@
 package cloud.simple.gateway.oauth2;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.config.annotation.builders.JdbcClientDetailsServiceBuilder;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
@@ -44,14 +40,14 @@ public class AuthenticationProviderConfig {
 	}
 
 	@Bean
-	public CustomUserDetailsService customUserDetailsService() {
+	public CustomUserDetailsService userDetailsService() {
 		CustomUserDetailsService service = new CustomUserDetailsService();
 		service.setDataSource(dataSource());
 		return service;
 	}
 
-	@Bean
-	public JdbcClientDetailsService jdbcClientDetailsService() {
+	@Bean(name="pipaClientDetailsService")
+	public JdbcClientDetailsService clientDetailsService() {
 		JdbcClientDetailsService service = new JdbcClientDetailsService(dataSource());
 		service.setPasswordEncoder(new BCryptPasswordEncoder());
 		return service;
@@ -59,7 +55,7 @@ public class AuthenticationProviderConfig {
 	
 	@Autowired
 	public void init(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(customUserDetailsService()).passwordEncoder(new BCryptPasswordEncoder());
+		auth.userDetailsService(userDetailsService()).passwordEncoder(new BCryptPasswordEncoder());
 	}
 
 }
